@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#1e3a8a">
+<title>Questionário EVUL | Educação Visual</title>
+<style>
+:root{
+  --azul:#1e3a8a; --azul-esc:#16296a; --azul-cl:#e8edf9;
+  --castanho:#8b5a2b; --castanho-cl:#f6ede3;
+  --bg:#f4f6fb; --card:#fff; --txt:#1f2937; --mut:#6b7280; --bord:#d5dbea; --erro:#b91c1c; --ok:#15803d;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--txt);line-height:1.5;padding-bottom:env(safe-area-inset-bottom)}
+header{background:linear-gradient(135deg,var(--azul),var(--azul-esc));color:#fff;padding:calc(18px + env(safe-area-inset-top)) 16px 18px;text-align:center;border-bottom:4px solid var(--castanho)}
+header h1{margin:0;font-size:1.35rem}
+header p{margin:4px 0 0;font-size:.85rem;opacity:.9}
+main{max-width:720px;margin:0 auto;padding:16px}
+.progress{height:8px;background:var(--azul-cl);border-radius:99px;overflow:hidden;margin:6px 0 4px}
+.progress div{height:100%;width:0;background:linear-gradient(90deg,var(--azul),var(--castanho));transition:width .3s}
+.step-info{font-size:.8rem;color:var(--mut);margin-bottom:12px;display:flex;justify-content:space-between}
+.page{display:none;background:var(--card);border:1px solid var(--bord);border-radius:14px;padding:20px;box-shadow:0 2px 8px rgba(30,58,138,.06)}
+.page.active{display:block;animation:in .25s ease}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+h2{margin:0 0 4px;color:var(--azul);font-size:1.2rem}
+h2 .n{display:inline-block;background:var(--castanho);color:#fff;border-radius:8px;padding:0 9px;margin-right:6px}
+.sub{color:var(--mut);font-size:.85rem;margin:0 0 16px}
+.q{margin-bottom:18px}
+.q label.t{display:block;font-weight:600;margin-bottom:6px;font-size:.95rem}
+textarea,input[type=text]{width:100%;padding:10px 12px;border:1.5px solid var(--bord);border-radius:10px;font:inherit;background:#fff;color:var(--txt)}
+textarea{min-height:96px;resize:vertical}
+textarea:focus,input[type=text]:focus{outline:none;border-color:var(--azul);box-shadow:0 0 0 3px rgba(30,58,138,.15)}
+.box{background:var(--azul-cl);border-left:4px solid var(--azul);border-radius:8px;padding:12px 14px;font-size:.9rem;margin-bottom:14px}
+.box.c{background:var(--castanho-cl);border-color:var(--castanho)}
+.box p{margin:0 0 8px}.box p:last-child{margin:0}
+.check{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1.5px solid var(--bord);border-radius:10px;margin-bottom:8px;cursor:pointer;font-size:.92rem}
+.check input{margin-top:3px;width:18px;height:18px;accent-color:var(--azul);flex:none}
+.check:has(input:checked){border-color:var(--azul);background:var(--azul-cl)}
+.check b{display:block;color:var(--azul)}
+.nav{display:flex;gap:10px;justify-content:space-between;margin-top:20px}
+button{font:inherit;font-weight:600;border:0;border-radius:10px;padding:12px 20px;cursor:pointer}
+.prim{background:var(--azul);color:#fff;margin-left:auto}.prim:hover{background:var(--azul-esc)}
+.sec{background:var(--castanho-cl);color:var(--castanho)}
+button:disabled{opacity:.6;cursor:wait}
+.err{color:var(--erro);font-size:.85rem;margin-top:10px;display:none}
+.final{text-align:center;padding:30px 10px}
+.final .ic{font-size:3rem;color:var(--ok)}
+footer{text-align:center;color:var(--mut);font-size:.75rem;padding:10px 16px 24px}
+</style>
+</head>
+<body>
+<header>
+  <h1>EVUL · Estudo de Avaliação</h1>
+  <p>Licenciatura em Ensino de Educação Visual · Universidade Licungo</p>
+</header>
+
+<main>
+  <div class="progress"><div id="bar"></div></div>
+  <div class="step-info"><span id="stepName"></span><span id="stepCount"></span></div>
+
+  <form id="form" novalidate>
+
+    <!-- Página 0: Consentimento + guião -->
+    <section class="page active" data-title="Consentimento e tarefas">
+      <h2>Termo de Consentimento Livre e Esclarecido</h2>
+      <p class="sub">Estudo: EVUL – Rede Social Académica para o Curso de Educação Visual</p>
+      <div class="box">
+        <p>Este estudo faz parte de um projecto de pesquisa da Licenciatura em Ensino de Educação Visual da Universidade Licungo, e tem como objectivo avaliar a EVUL, uma rede social académica desenvolvida para o curso, enquanto ferramenta de comunicação e partilha de materiais entre estudantes e docentes.</p>
+        <p>Ao aceitar participar, será convidado(a) a utilizar a plataforma EVUL durante um período de 24 horas, seguindo um pequeno guião de tarefas, e a responder, no final desse período, a um questionário sobre a sua experiência de utilização.</p>
+        <p>As respostas ao questionário e os dados de utilização da plataforma serão tratados de forma confidencial e utilizados exclusivamente para fins desta investigação. Os resultados serão apresentados de forma agregada e anonimizada, não sendo possível identificar individualmente qualquer participante.</p>
+        <p>A participação neste estudo é voluntária. Pode recusar-se a participar ou desistir a qualquer momento, sem que isso implique qualquer prejuízo académico ou pessoal.</p>
+        <p><b>Contacto do investigador:</b> Coragem Gonçalves Raúl Diua – 872007783</p>
+      </div>
+
+      <h2 style="font-size:1.05rem">Guião de tarefas</h2>
+      <p class="sub">Durante as 24 horas, cumpra as tarefas pela ordem apresentada e marque as que já concluiu.</p>
+      <label class="check"><input type="checkbox" name="tarefas" value="1"><span><b>Tarefa 1 – Criar conta</b>Aceda à EVUL e crie a sua conta de estudante (ou entre, caso já tenha uma conta criada).</span></label>
+      <label class="check"><input type="checkbox" name="tarefas" value="2"><span><b>Tarefa 2 – Chat</b>Envie pelo menos uma mensagem através do chat.</span></label>
+      <label class="check"><input type="checkbox" name="tarefas" value="3"><span><b>Tarefa 3 – Publicações</b>Publique algo ou comente numa publicação de outro membro.</span></label>
+      <label class="check"><input type="checkbox" name="tarefas" value="4"><span><b>Tarefa 4 – Biblioteca</b>Consulte pelo menos um documento disponível na biblioteca digital.</span></label>
+      <label class="check"><input type="checkbox" name="tarefas" value="5"><span><b>Tarefa 5 – Sala de aulas</b>Entre na sala de aula da sua disciplina, utilizando o código fornecido pelo seu docente.</span></label>
+      <label class="check"><input type="checkbox" name="tarefas" value="6"><span><b>Tarefa 6 – Definições</b>Aceda às definições e confira os dados do seu perfil.</span></label>
+
+      <div class="box c" style="margin-top:14px">
+        <label class="check" style="margin:0;background:#fff">
+          <input type="checkbox" id="consent" name="consentimento">
+          <span>Li e compreendi o termo acima e aceito participar neste estudo de forma voluntária.</span>
+        </label>
+      </div>
+    </section>
+
+    <!-- Página 1 -->
+    <section class="page" data-title="1 · Perfil">
+      <h2><span class="n">1</span>Perfil</h2>
+      <p class="sub">Estudo de avaliação da EVUL</p>
+      <div class="q"><label class="t" for="q1_1">1.1. Em que ano de frequência se encontra?</label><input type="text" id="q1_1" name="q1_1"></div>
+      <div class="q"><label class="t" for="q1_2">1.2. Já tinha usado alguma rede social académica antes da EVUL? Se sim, qual, e como foi essa experiência?</label><textarea id="q1_2" name="q1_2"></textarea></div>
+    </section>
+
+    <!-- Página 2 -->
+    <section class="page" data-title="2 · Ferramentas actuais">
+      <h2><span class="n">2</span>Ferramentas actuais</h2>
+      <p class="sub">WhatsApp, Facebook, e-mail, etc.</p>
+      <div class="q"><label class="t" for="q2_1">2.1. Fale sobre a forma como costuma receber e organizar os materiais, informações e actividades partilhados pelos docentes através das ferramentas actuais (ex: WhatsApp, Facebook, e-mail). Sente-se satisfeito com essa organização? Porquê?</label><textarea id="q2_1" name="q2_1"></textarea></div>
+      <div class="q"><label class="t" for="q2_2">2.2. Quando precisa de encontrar um material, informação ou actividade antiga que já recebeu, como é essa experiência? Sente dificuldade? Explique.</label><textarea id="q2_2" name="q2_2"></textarea></div>
+      <div class="q"><label class="t" for="q2_3">2.3. Quais são as principais dificuldades que sente ao comunicar com os docentes ou aceder a materiais usando as ferramentas actuais?</label><textarea id="q2_3" name="q2_3"></textarea></div>
+    </section>
+
+    <!-- Página 3 -->
+    <section class="page" data-title="3 · Experiência com a EVUL">
+      <h2><span class="n">3</span>Experiência com a EVUL</h2>
+      <p class="sub">Descreva o que achou fácil ou difícil, e porquê.</p>
+      <div class="q"><label class="t" for="q3_1">3.1. Descreva a sua experiência ao enviar uma mensagem através do chat da EVUL – o que achou fácil ou difícil, e porquê?</label><textarea id="q3_1" name="q3_1"></textarea></div>
+      <div class="q"><label class="t" for="q3_2">3.2. Descreva a sua experiência ao publicar ou comentar numa publicação da EVUL – o que achou fácil ou difícil, e porquê?</label><textarea id="q3_2" name="q3_2"></textarea></div>
+      <div class="q"><label class="t" for="q3_3">3.3. Descreva a sua experiência ao consultar um documento na biblioteca digital da EVUL – o que achou fácil ou difícil, e porquê?</label><textarea id="q3_3" name="q3_3"></textarea></div>
+      <div class="q"><label class="t" for="q3_4">3.4. Descreva a sua experiência ao entrar na sala de aula da sua disciplina, usando o código fornecido pelo docente – o que achou fácil ou difícil, e porquê?</label><textarea id="q3_4" name="q3_4"></textarea></div>
+      <div class="q"><label class="t" for="q3_5">3.5. Que comentários ou preocupações tem sobre os seus dados pessoais na página de definições/perfil da EVUL?</label><textarea id="q3_5" name="q3_5"></textarea></div>
+    </section>
+
+    <!-- Página 4 -->
+    <section class="page" data-title="4 · Comparação">
+      <h2><span class="n">4</span>Comparação: ferramentas actuais vs. EVUL</h2>
+      <p class="sub">Compare com WhatsApp, Facebook e e-mail.</p>
+      <div class="q"><label class="t" for="q4_1">4.1. Comparando com as ferramentas que usa actualmente (WhatsApp, Facebook, e-mail), como descreveria a sua experiência a comunicar com os docentes e colegas através da EVUL? Em que sentiu melhoria, e em que sentiu dificuldade?</label><textarea id="q4_1" name="q4_1"></textarea></div>
+      <div class="q"><label class="t" for="q4_2">4.2. Comparando com as ferramentas que usa actualmente, como descreveria a sua experiência a aceder a materiais, informações e actividades do curso através da EVUL? Em que sentiu melhoria, e em que sentiu dificuldade?</label><textarea id="q4_2" name="q4_2"></textarea></div>
+      <div class="q"><label class="t" for="q4_3">4.3. Na sua opinião, a EVUL contribui para melhorar a comunicação e a partilha de materiais no curso? De que forma?</label><textarea id="q4_3" name="q4_3"></textarea></div>
+    </section>
+
+    <!-- Página 5 -->
+    <section class="page" data-title="5 · Sugestões de melhoria">
+      <h2><span class="n">5</span>Sugestões de melhoria</h2>
+      <p class="sub">Última secção. Obrigado pela sua colaboração.</p>
+      <div class="q"><label class="t" for="q5_1">5.1. Que melhorias sugere para a EVUL, tendo em conta a experiência que teve?</label><textarea id="q5_1" name="q5_1"></textarea></div>
+    </section>
+
+    <!-- Página final -->
+    <section class="page" data-title="Concluído">
+      <div class="final">
+        <div class="ic">✔</div>
+        <h2>Respostas enviadas!</h2>
+        <p>Obrigado pela sua colaboração. As suas respostas foram registadas com sucesso.</p>
+      </div>
+    </section>
+
+    <div class="err" id="err"></div>
+    <div class="nav" id="nav">
+      <button type="button" class="sec" id="btnPrev">Anterior</button>
+      <button type="button" class="prim" id="btnNext">Seguinte</button>
+    </div>
+  </form>
+</main>
+<footer>EVUL · Universidade Licungo – Quelimane</footer>
+
+<script>
+
+/* ====== COLE AQUI A CONFIGURAÇÃO DO SEU PROJECTO FIREBASE ====== */
+const firebaseConfig = {
+  apiKey: "SUA_API_KEY",
+  authDomain: "SEU_PROJECTO.firebaseapp.com",
+  projectId: "SEU_PROJECTO",
+  storageBucket: "SEU_PROJECTO.appspot.com",
+  messagingSenderId: "000000000000",
+  appId: "SEU_APP_ID"
+};
+const COLECCAO = "respostas_questionario_evul";
+/* =============================================================== */
+
+const V = "10.12.2";
+async function ligarFirebase(){
+  const [{initializeApp}, fs] = await Promise.all([
+    import(`https://www.gstatic.com/firebasejs/${V}/firebase-app.js`),
+    import(`https://www.gstatic.com/firebasejs/${V}/firebase-firestore.js`)
+  ]);
+  return { db: fs.getFirestore(initializeApp(firebaseConfig)), fs };
+}
+const pages = [...document.querySelectorAll(".page")];
+const last = pages.length - 1;          // página de agradecimento
+const submitAt = last - 1;              // última página de perguntas
+let cur = 0;
+
+const $ = id => document.getElementById(id);
+const err = $("err"), prev = $("btnPrev"), next = $("btnNext");
+
+function show(i){
+  cur = i;
+  pages.forEach((p,k)=>p.classList.toggle("active",k===i));
+  $("bar").style.width = (i/last*100)+"%";
+  $("stepName").textContent = pages[i].dataset.title;
+  $("stepCount").textContent = i<last ? `Página ${i+1} de ${last}` : "";
+  prev.style.visibility = (i===0||i===last) ? "hidden" : "visible";
+  next.textContent = i===submitAt ? "Enviar respostas" : "Seguinte";
+  $("nav").style.display = i===last ? "none" : "flex";
+  err.style.display = "none";
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function showErr(m){ err.textContent=m; err.style.display="block"; }
+
+async function enviar(){
+  const f = $("form");
+  const dados = {};
+  f.querySelectorAll("textarea,input[type=text]").forEach(el=>dados[el.name]=el.value.trim());
+  dados.tarefasConcluidas = [...f.querySelectorAll('input[name="tarefas"]:checked')].map(c=>Number(c.value));
+  dados.consentimento = true;
+  next.disabled = true; next.textContent = "A enviar...";
+  try{
+    const { db, fs } = await ligarFirebase();
+    dados.criadoEm = fs.serverTimestamp();
+    await fs.addDoc(fs.collection(db, COLECCAO), dados);
+    show(last);
+  }catch(e){
+    console.error(e);
+    showErr("Não foi possível enviar. Verifique a ligação à internet e tente novamente.");
+    next.disabled = false; next.textContent = "Enviar respostas";
+  }
+}
+
+next.addEventListener("click", ()=>{
+  if(cur===0 && !$("consent").checked){ showErr("Para continuar, é necessário aceitar o termo de consentimento."); return; }
+  if(cur===submitAt){ enviar(); return; }
+  show(cur+1);
+});
+prev.addEventListener("click", ()=>{ if(cur>0) show(cur-1); });
+$("form").addEventListener("submit", e=>e.preventDefault());
+
+show(0);
+</script>
+</body>
+</html>
