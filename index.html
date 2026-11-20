@@ -47,11 +47,29 @@ button:disabled{opacity:.6;cursor:wait}
 .final{text-align:center;padding:30px 10px}
 .final .ic{font-size:3rem;color:var(--ok)}
 footer{text-align:center;color:var(--mut);font-size:.75rem;padding:10px 16px 24px}
+
+#admin{position:fixed;inset:0;background:var(--bg);z-index:50;display:none;overflow:auto;padding:calc(12px + env(safe-area-inset-top)) 14px 24px}
+#admin.on{display:block}
+.adm-top{max-width:900px;margin:0 auto 12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.adm-top h2{margin:0;flex:1;min-width:160px}
+.adm-top button{padding:9px 14px;font-size:.85rem}
+.adm-list{max-width:900px;margin:0 auto}
+details{background:#fff;border:1px solid var(--bord);border-radius:12px;margin-bottom:10px;padding:0 14px}
+summary{cursor:pointer;padding:12px 0;font-weight:600;color:var(--azul)}
+details .r{padding:8px 0;border-top:1px solid var(--bord);font-size:.88rem}
+details .r b{display:block;color:var(--castanho);margin-bottom:2px;font-weight:600}
+details .r span{white-space:pre-wrap}
+#modal{position:fixed;inset:0;background:rgba(15,23,42,.6);z-index:60;display:none;align-items:center;justify-content:center;padding:16px}
+#modal.on{display:flex}
+#modal .bx{background:#fff;border-radius:14px;padding:20px;width:100%;max-width:340px}
+#modal h3{margin:0 0 10px;color:var(--azul)}
+#modal .a{display:flex;gap:8px;margin-top:12px;justify-content:flex-end}
+#modal .e{color:var(--erro);font-size:.85rem;margin-top:8px;min-height:1em}
 </style>
 </head>
 <body>
 <header>
-  <h1>EVUL · Estudo de Avaliação</h1>
+  <h1 id="titulo" style="cursor:default;user-select:none">EVUL · Estudo de Avaliação</h1>
   <p>Licenciatura em Ensino de Educação Visual · Universidade Licungo</p>
 </header>
 
@@ -152,27 +170,47 @@ footer{text-align:center;color:var(--mut);font-size:.75rem;padding:10px 16px 24p
 </main>
 <footer>EVUL · Universidade Licungo – Quelimane</footer>
 
+<div id="modal"><div class="bx">
+  <h3>Área reservada</h3>
+  <input type="password" id="codigo" placeholder="Código de acesso" autocomplete="off">
+  <div class="e" id="modalErr"></div>
+  <div class="a"><button type="button" class="sec" id="modalCancel">Cancelar</button><button type="button" class="prim" id="modalOk" style="margin-left:0">Entrar</button></div>
+</div></div>
+<div id="admin">
+  <div class="adm-top">
+    <h2>Respostas <small id="admCount" style="color:var(--mut);font-weight:400"></small></h2>
+    <button type="button" class="prim" id="admCsv" style="margin-left:0">Descarregar CSV</button>
+    <button type="button" class="sec" id="admRef">Actualizar</button>
+    <button type="button" class="sec" id="admSair">Sair</button>
+  </div>
+  <div class="adm-list" id="admList"></div>
+</div>
 <script>
 
 /* ====== COLE AQUI A CONFIGURAÇÃO DO SEU PROJECTO FIREBASE ====== */
 const firebaseConfig = {
-  apiKey: "SUA_API_KEY",
-  authDomain: "SEU_PROJECTO.firebaseapp.com",
-  projectId: "SEU_PROJECTO",
-  storageBucket: "SEU_PROJECTO.appspot.com",
-  messagingSenderId: "000000000000",
-  appId: "SEU_APP_ID"
+  apiKey: "AIzaSyCZS-bXdROuhlsZBHXFEqwcIoBoOX282Oo",
+  authDomain: "monografia-f2729.firebaseapp.com",
+  projectId: "monografia-f2729",
+  storageBucket: "monografia-f2729.firebasestorage.app",
+  messagingSenderId: "423525733917",
+  appId: "1:423525733917:web:bc4aa5de64b2a09075d8f4"
 };
 const COLECCAO = "respostas_questionario_evul";
 /* =============================================================== */
 
 const V = "10.12.2";
-async function ligarFirebase(){
-  const [{initializeApp}, fs] = await Promise.all([
+let _fb = null;
+async function fb(){
+  if(_fb) return _fb;
+  const [{initializeApp}, fs, au] = await Promise.all([
     import(`https://www.gstatic.com/firebasejs/${V}/firebase-app.js`),
-    import(`https://www.gstatic.com/firebasejs/${V}/firebase-firestore.js`)
+    import(`https://www.gstatic.com/firebasejs/${V}/firebase-firestore.js`),
+    import(`https://www.gstatic.com/firebasejs/${V}/firebase-auth.js`)
   ]);
-  return { db: fs.getFirestore(initializeApp(firebaseConfig)), fs };
+  const app = initializeApp(firebaseConfig);
+  _fb = { app, fs, au, db: fs.getFirestore(app) };
+  return _fb;
 }
 const pages = [...document.querySelectorAll(".page")];
 const last = pages.length - 1;          // página de agradecimento
@@ -205,7 +243,7 @@ async function enviar(){
   dados.consentimento = true;
   next.disabled = true; next.textContent = "A enviar...";
   try{
-    const { db, fs } = await ligarFirebase();
+    const { db, fs } = await fb();
     dados.criadoEm = fs.serverTimestamp();
     await fs.addDoc(fs.collection(db, COLECCAO), dados);
     show(last);
@@ -223,6 +261,82 @@ next.addEventListener("click", ()=>{
 });
 prev.addEventListener("click", ()=>{ if(cur>0) show(cur-1); });
 $("form").addEventListener("submit", e=>e.preventDefault());
+
+/* ====== PAINEL DE RESPOSTAS (5 cliques no título) ====== */
+const ADMIN_EMAIL = "admin@evul.app";
+let cliques = 0, tCliques;
+$("titulo").addEventListener("click", ()=>{
+  cliques++; clearTimeout(tCliques);
+  tCliques = setTimeout(()=>cliques=0, 2500);
+  if(cliques>=5){ cliques=0; $("codigo").value=""; $("modalErr").textContent=""; $("modal").classList.add("on"); $("codigo").focus(); }
+});
+$("modalCancel").onclick = ()=>$("modal").classList.remove("on");
+$("codigo").addEventListener("keydown", e=>{ if(e.key==="Enter") $("modalOk").click(); });
+$("modalOk").onclick = async ()=>{
+  const code = $("codigo").value;
+  if(!code) return;
+  $("modalOk").disabled = true; $("modalErr").textContent = "A verificar...";
+  try{
+    const { app, au } = await fb();
+    await au.signInWithEmailAndPassword(au.getAuth(app), ADMIN_EMAIL, code);
+    $("modal").classList.remove("on");
+    $("admin").classList.add("on");
+    await carregar();
+  }catch(e){
+    console.error(e);
+    $("modalErr").textContent = (e.code && e.code.startsWith("auth/")) ? "Código incorrecto." : "Erro de ligação. Tente novamente.";
+  }
+  $("modalOk").disabled = false;
+};
+
+let respostas = [];
+const perguntas = () => [...document.querySelectorAll("#form textarea, #form input[type=text]")].map(el=>{
+  const l = document.querySelector(`label[for="${el.id}"]`);
+  return { id: el.name, texto: l ? l.textContent.trim() : el.name };
+});
+
+async function carregar(){
+  const { db, fs } = await fb();
+  const lista = $("admList");
+  lista.textContent = "A carregar...";
+  const snap = await fs.getDocs(fs.query(fs.collection(db, COLECCAO), fs.orderBy("criadoEm","desc")));
+  respostas = snap.docs.map(d=>({ id:d.id, ...d.data() }));
+  $("admCount").textContent = `(${respostas.length} participante${respostas.length===1?"":"s"})`;
+  lista.textContent = "";
+  if(!respostas.length){ lista.textContent = "Ainda não há respostas."; return; }
+  const qs = perguntas();
+  respostas.forEach((r,i)=>{
+    const d = document.createElement("details");
+    const sm = document.createElement("summary");
+    sm.textContent = `#${respostas.length-i} · ${fmtData(r.criadoEm)} · tarefas: ${(r.tarefasConcluidas||[]).join(", ")||"nenhuma"}`;
+    d.appendChild(sm);
+    qs.forEach(q=>{
+      const div = document.createElement("div"); div.className = "r";
+      const b = document.createElement("b"); b.textContent = q.texto;
+      const sp = document.createElement("span"); sp.textContent = r[q.id] || "—";
+      div.append(b, sp); d.appendChild(div);
+    });
+    lista.appendChild(d);
+  });
+}
+function fmtData(t){ return t && t.toDate ? t.toDate().toLocaleString("pt-PT") : ""; }
+
+$("admRef").onclick = ()=>carregar();
+$("admSair").onclick = async ()=>{
+  try{ const { app, au } = await fb(); await au.signOut(au.getAuth(app)); }catch(e){}
+  $("admin").classList.remove("on"); $("admList").textContent = ""; respostas = [];
+};
+$("admCsv").onclick = ()=>{
+  if(!respostas.length) return;
+  const qs = perguntas();
+  const esc = v => `"${String(v??"").replace(/"/g,'""')}"`;
+  const linhas = [["Data","Tarefas concluídas",...qs.map(q=>q.texto)].map(esc).join(";")];
+  respostas.forEach(r=>linhas.push([fmtData(r.criadoEm),(r.tarefasConcluidas||[]).join(","),...qs.map(q=>r[q.id])].map(esc).join(";")));
+  const blob = new Blob(["\ufeff"+linhas.join("\r\n")], {type:"text/csv;charset=utf-8"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = "respostas-evul.csv"; a.click();
+  URL.revokeObjectURL(a.href);
+};
 
 show(0);
 </script>
